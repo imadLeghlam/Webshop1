@@ -1,0 +1,174 @@
+package webshop.x.model;
+
+class Webshop {
+	String name;
+	String description;
+}
+class User {
+	String userId;
+	String password;
+	String loginStatus;
+	
+}
+class Administrator extends User {
+	String adminName;
+	String email;
+	String adminPass ;
+}
+
+class Customer extends User{
+   String customerName ;
+   String address;
+   String email;
+   String creditCardInfo;
+   String shippingInfo;
+}
+
+class Shipping_Info {
+	String shippingType;
+	int shippingId;
+	int shippingCost;
+	int shippingRegionId;
+	
+}
+
+class Shopping_Cart {
+	int cartId ; 
+	int productID;
+	int quantity;
+	int dateAdded;
+}
+
+class Orders {
+	int orderId ;
+	String dateCreated;
+	String dateShipped;
+	String customerName;
+	String customerId;
+	String status;
+	String shippingId;	
+	
+}
+
+class Orders_Detail {
+int orderId;
+int productId;
+String productName;
+int quantity;
+int unitCost;
+int subtotal;	
+}
+class Price {
+	int prices ;
+	int orderId;
+}
+class Product extends Orders{
+	int orderId;
+    int productId;
+    String productName;
+	
+}
+
+association WebUsers {
+	1 Webshop webshop;
+	0..* User user;
+}
+
+composition CustomerCard {
+	container Customer customer;
+	0..* Shopping_Cart shoppingcart;
+}
+
+composition CustomerOrder {
+	container Customer customer;
+	0..* Orders orders;
+}
+
+association OrderShippingInfo {
+	1 Orders orders;
+	1 Shipping_Info shippinginfo;
+}
+
+composition ProductOrder {
+	container Orders orders;
+	0..* Product product;
+}
+
+composition FacebookHasFunctions {
+	container Orders orders;
+	1 Orders_Detail detail;
+}
+
+association ProductPrice {
+	1 Product product;
+	1 Price price;
+}
+signal Reselect {}
+signal Stop{}
+signal ClickOnOrder{}
+signal Buy{}
+
+class Order {
+	int produtNumber ;
+	initial Init;
+	state SelectOrder;
+	choice CheckProduct ;
+	state Available;
+	state NotAvailable;
+	state GetProduct;
+	state Cancel ; 
+	
+	
+transition Initialize {
+	from Init;
+	to SelectOrder;	
+	effect {
+			log("Starting to chose.");
+		}
+}
+	
+
+transition ChoseOrder{
+	from SelectOrder;
+	to CheckProduct ; 
+	trigger ClickOnOrder;
+}
+transition IfThereIs {
+	from CheckProduct ;
+	to Available ;
+	guard ( produtNumber > 0 ) ;
+	
+}
+transition NotFind{
+
+	from CheckProduct ;
+	to NotAvailable;
+	guard (else);
+
+}
+transition SelectAgain {
+	from NotAvailable ;
+	to SelectOrder ;
+	trigger Reselect ;
+}
+
+transition Stopping {
+	from NotAvailable ;
+	to Cancel ;
+	trigger Stop;
+}
+transition StoppingA {
+	from Available ;
+	to Cancel ;
+	trigger Stop;
+}
+
+transition Buying {
+	from Available ;
+	to GetProduct ;
+	trigger Buy ;
+}
+}
+
+
+
